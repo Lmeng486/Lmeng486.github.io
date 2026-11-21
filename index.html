@@ -171,6 +171,32 @@
   @media(prefers-reduced-motion:reduce){
     .grain,.scanline,.dot,.enter::before{animation:none}
   }
+
+  /* ---------- 站点卡片填充 ---------- */
+  input.app-search{outline:none;color:var(--ink);min-width:240px;transition:border-color .3s}
+  input.app-search:focus{border-color:var(--accent)}
+  input.app-search::placeholder{color:var(--faint)}
+  .app-title p b{color:var(--accent-deep);font-weight:600}
+  .card{border-style:solid}
+  .card .row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .name{font-size:17px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .card .badge{font-family:var(--mono);font-size:10px;color:#fffaf0;background:var(--accent);border-radius:100px;padding:2px 8px;letter-spacing:.08em}
+  .card .st{font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .card .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px rgba(123,161,103,.7);display:inline-block}
+  .card .dot.bad{background:#c08050;box-shadow:none}
+  .card .date{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px;letter-spacing:.06em}
+  .card .ph-title{display:none}
+  .card .ph-desc{margin-top:10px;color:var(--mid)}
+  .card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .card .t{font-family:var(--mono);font-size:10px;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--line);border-radius:100px;padding:2px 9px}
+  .card .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .card .btn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--accent-deep);padding:7px 14px;border-radius:5px;transition:background .25s,border-color .25s,color .25s}
+  .card .btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .card .btn.go{background:var(--accent-deep);border-color:var(--accent-deep);color:#fffaf0}
+  .card .btn.go:hover{background:var(--accent);border-color:var(--accent)}
+  .card.off{opacity:.72}
+  .empty{grid-column:1/-1;text-align:center;font-family:var(--mono);font-size:12px;color:var(--dim);padding:60px 0}
+  @media(max-width:820px){input.app-search{min-width:0;flex:1;font-size:11px}}
 </style>
 </head>
 <body>
@@ -190,11 +216,8 @@
       <div class="mark"><i></i></div>
       <b>NEXUS<em>.</em>星枢</b>
     </div>
-    <nav class="nav">
-      <span class="on">首页 / HOME</span>
-      <span>站点 / SITES</span>
-      <span>福利 / PERKS</span>
-      <span>关于 / ABOUT</span>
+    <nav class="nav" id="nav">
+      <span class="on" data-tag="">全部站点</span><span data-tag="注册送额度">注册福利</span><span data-tag="有签到">签到奖励</span><span data-tag="低倍率">低倍率</span>
     </nav>
     <div class="status-chip"><span class="dot"></span> SYSTEM ONLINE</div>
   </header>
@@ -231,33 +254,106 @@
     <nav class="nav">
       <span class="on">站点列表</span><span>注册福利</span><span>签到奖励</span><span>低倍率</span>
     </nav>
-    <div class="app-search"><span class="mag">⌕</span> 搜索站点 / 关键词…</div>
+    <input id="q" class="app-search" type="search" placeholder="⌕ 搜索站点 / 标签 / 关键词…" autocomplete="off" spellcheck="false">
   </header>
 
   <div class="app-body">
     <div class="app-title">
       <span class="tag">API 中转站聚合 · 公益整理</span>
       <h2>这里聚集了很多 <em>API</em> 中转站</h2>
-      <p>共收录 22 个真实站点 · 逐条记录注册赠送、签到奖励、倍率高低与群组额度</p>
+      <p id="statLine">共收录 22 个真实站点 · 逐条记录注册赠送、签到奖励、倍率高低与群组额度</p>
     </div>
 
-    <div class="grid">
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 01</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 02</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 03</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 04</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 05</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-      <div class="card"><div class="corner"></div><div class="idx">SLOT / 06</div><div><div class="ph-title">站点卡片位</div><div class="ph-desc">把你的站点信息卡片放在这里 —— 名称、福利、标签与「前往站点」按钮。</div></div></div>
-    </div>
+    <div class="grid" id="list"></div>
 
-    <div class="fill-note">以上为<b>占位骨架</b>，替换为你的真实内容即可 · 页面外壳、导航、样式均已就绪</div>
+    <div class="fill-note">共 <b>22</b> 个站点 · 数据核对 2026-11-21 · <b>不含任何邀请码与推广返利</b> · 「前往站点」经搜索引擎定位各站最新官方地址</div>
     <button class="back" id="backBtn">← 返回封面</button>
   </div>
   <div class="app-foot">NEXUS · A PUBLIC API-HUB SHELL · 由 GitHub Pages 托管</div>
 </section>
 
 <script>
+/* ==== 数据区：加站只改这里，一条一个对象 ==== */
+var SITES = [
+{name:'chicken',added:'2026-11-21 11:04',ok:true,isNew:true,desc:'注册送额度，签到 1 万以内额度随机，模型按次计费。',tags:['有签到','注册送额度'],qq:''},
+{name:'星驰公益站点',added:'2026-11-20 12:37',ok:true,isNew:false,desc:'注册登录绑定赠送 1000 余额兑换码，每日签到 300 余额，0.5 倍 GPT 根本用不完。',tags:['有试吃','有签到','低倍率','注册送额度'],qq:''},
+{name:'芋头饭',added:'2026-11-20 10:45',ok:true,isNew:false,desc:'注册送 150；DeepSeek 两块一次，gemini 系列最低 4 元一次、最高 12 元一次。',tags:['有试吃','注册送额度','多模型'],qq:''},
+{name:'myapi公益站',added:'2026-11-20 08:20',ok:true,isNew:false,desc:'注册进群绑定赠送 100 余额。绑定码在顶部导航栏 QQ 头像处输入 QQ 号生成；有签到，10 额度以内随机，需在群内签到。',tags:['有试吃','有签到','注册送额度','进群绑定'],qq:'714847682'},
+{name:'tokenfuture',added:'2026-11-19 16:55',ok:true,isNew:false,desc:'注册送 0.5，签到第 1 天 1、第 2 天 2，以此类推最高 5 额度；断签从第 1 天重新开始，签到第 5 天后刷新。',tags:['有试吃','有签到','低倍率','注册送额度'],qq:''},
+{name:'新疆网安科技',added:'2026-11-19 14:47',ok:true,isNew:false,desc:'签到一次可得 1000 额度，每日可签到 10 次，需答题签到；auto 模型速度快、消耗少，非常推荐。',tags:['有试吃','有签到','推荐','低倍率'],qq:''},
+{name:'moto',added:'2026-11-17 07:38',ok:true,isNew:false,desc:'注册进群绑定送 1 额度，社群活动可再领 1 额度，0.02 倍率 GPT，DeepSeek 免费额度。',tags:['有试吃','低倍率','注册送额度','进群绑定'],qq:''},
+{name:'久违词元',added:'2026-11-16 13:49',ok:true,isNew:false,desc:'注册进群绑定送 5 额度（注册送的额度一天内有效），无签到，一台设备仅允许注册一个账号；新人首次 24 小时无限体验，DeepSeek V4.1 Flash 不限量，零点几倍率仅限国产模型。',tags:['有试吃','有签到','低倍率','注册送额度'],qq:'1106861602'},
+{name:'maxdle',added:'2026-11-16 13:24',ok:true,isNew:false,desc:'注册不送额度，有无试吃未知；有签到，0.2~0.5 元，零点几倍率模型分组。',tags:['有签到','低倍率'],qq:''},
+{name:'渡口云',added:'2026-11-16 11:21',ok:true,isNew:false,desc:'侧边栏点击关注领 1 元，弹微信二维码，关注后发送「兑换码」或「领兑换码」领取；低倍率，有 Claude / OpenAI 系列，无签到。',tags:['低倍率','注册送额度'],qq:''},
+{name:'一枝春',added:'2026-11-15 11:21',ok:true,isNew:false,desc:'注册进群绑定后送 10 额度；0.06 倍稳定版 GPT、0.04 倍国产模型；无签到。绑定方法：侧滑导航栏 → 活动奖励 → 生成绑定码 → 进群 @活动助手 发送「绑定 + 绑定码」。',tags:['有试吃','进群绑定','低倍率','稳定版GPT'],qq:'1127296762'},
+{name:'少十元',added:'2026-11-14 11:21',ok:false,isNew:false,desc:'签到可得 66666~88888 货币；模型推荐较多。',tags:['有签到','多模型推荐'],qq:''},
+{name:'麦块云',added:'2026-11-13 11:21',ok:true,isNew:false,desc:'注册送 10 鱼币（10 鱼币 = 1 亿 Token）；每日签到送 10 鱼币 = 1 亿 Token；每日兑换上限 1 亿 Token。',tags:['有试吃','有签到','注册送额度','Token兑换'],qq:''},
+{name:'meng',added:'2026-11-12 11:21',ok:true,isNew:false,desc:'注册送 1，无签到，零点几至零点零几倍率。',tags:['有试吃','注册送额度','低倍率'],qq:''},
+{name:'暮色公益站',added:'2026-11-11 11:21',ok:true,isNew:false,desc:'注册送 1 万积分；签到 1 万以内随机；仅支持 DeepSeek v4.1，其他模型需申请。需加群并把审核链接打开后的内容发到群内，审核通过即可注册。',tags:['有试吃','有签到','注册送额度','需审核','限制模型'],qq:'671775222'},
+{name:'星路由',added:'2026-11-10 11:21',ok:true,isNew:false,desc:'注册送 80，低倍率，有签到（签到金额约在 10~20 之内）。',tags:['有试吃','有签到','注册送额度','低倍率'],qq:''},
+{name:'慧慧云',added:'2026-11-09 11:21',ok:true,isNew:false,desc:'有低倍率模型；有签到，社群活动或充值可解锁 0.4~1 元；倍率零点几。',tags:['有签到','低倍率','社群解锁'],qq:''},
+{name:'银杏',added:'2026-11-08 11:21',ok:true,isNew:false,desc:'注册送 6 额度，零点几倍率，无签到。',tags:['有试吃','注册送额度','低倍率'],qq:''},
+{name:'vc',added:'2026-11-07 11:21',ok:true,isNew:false,desc:'注册即赠 5 元赠金，零点几倍率；签到 0.1~1 元；赠金只能使用赠金分组模型。',tags:['有试吃','有签到','低倍率','注册送额度'],qq:''},
+{name:'TinyGate',added:'2026-11-06 11:21',ok:false,isNew:false,desc:'注册送 10 额度，低倍率，签到 0.016。',tags:['有试吃','有签到','注册送额度','低倍率'],qq:''},
+{name:'晚晚舟',added:'2026-11-05 11:21',ok:true,isNew:false,desc:'注册送 1 额度，零点几倍率；有签到，社群活动可解锁固定额度；一次抽奖。',tags:['有试吃','有签到','注册送额度','低倍率','社群解锁'],qq:''},
+{name:'sheapi',added:'2026-11-04 11:21',ok:true,isNew:false,desc:'注册送 1 额度，签到 1 以内随机，低倍率。',tags:['有试吃','有签到','注册送额度','低倍率'],qq:''}
+];
+var STAT_UPDATED = '2026-11-21';
 (function(){
+  var listEl = document.getElementById('list'),
+      qEl = document.getElementById('q'),
+      statEl = document.getElementById('statLine'),
+      navEl = document.getElementById('nav');
+  var curTag = '', curQ = '';
+  function searchUrl(n){ return 'https://www.bing.com/search?q=' + encodeURIComponent(n + ' API 中转站 官方 注册'); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ var mm = {'&':'&amp;','<':'&lt;','>':'&gt;'}; return mm[c] || '&#34;'; }); }
+  function render(){
+    var f = SITES.filter(function(s){
+      if (curTag && s.tags.indexOf(curTag) === -1) return false;
+      if (curQ){
+        var k = (s.name + ' ' + s.desc + ' ' + s.tags.join(' ') + ' ' + (s.qq || '')).toLowerCase();
+        if (k.indexOf(curQ) === -1) return false;
+      }
+      return true;
+    });
+    var okn = SITES.filter(function(s){ return s.ok; }).length;
+    statEl.innerHTML = '共收录 <b>' + SITES.length + '</b> 个真实站点 · 可访问 <b>' + okn + '</b> · 当前显示 <b>' + f.length + '</b> · 核对 <b>' + STAT_UPDATED + '</b>';
+    if (!f.length){ listEl.innerHTML = '<div class="empty">没有匹配的站点，清空筛选再试试</div>'; return; }
+    listEl.innerHTML = f.map(function(s){
+      return '<div class="card' + (s.ok ? '' : ' off') + '"><div class="corner"></div>'
+        + '<div><div class="row1"><span class="name">' + esc(s.name) + '</span>'
+        + (s.isNew ? '<span class="badge">新站</span>' : '')
+        + '<span class="st"><span class="dot' + (s.ok ? '' : ' bad') + '"></span>' + (s.ok ? '可访问' : '暂不可达') + '</span></div>'
+        + '<div class="date">' + esc(s.added) + ' 收录</div>'
+        + '<div class="ph-desc">' + esc(s.desc) + '</div>'
+        + '<div class="tags">' + s.tags.map(function(t){ return '<span class="t">#' + esc(t) + '</span>'; }).join('') + '</div></div>'
+        + '<div class="actions"><a class="btn go" href="' + searchUrl(s.name) + '" target="_blank" rel="noopener">前往站点 ↗</a>'
+        + (s.qq ? '<button class="btn qq" type="button" data-qq="' + esc(s.qq) + '">交流群 ' + esc(s.qq) + '</button>' : '')
+        + '</div></div>';
+    }).join('');
+  }
+  listEl.addEventListener('click', function(e){
+    var b = e.target.closest('.btn.qq');
+    if (!b) return;
+    var qqv = b.getAttribute('data-qq'), old = b.textContent;
+    function done(){ b.textContent = '已复制 ' + qqv; setTimeout(function(){ b.textContent = old; }, 1200); }
+    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(qqv).then(done, done); } else { done(); }
+  });
+  qEl.addEventListener('input', function(){ curQ = qEl.value.trim().toLowerCase(); render(); });
+  navEl.addEventListener('click', function(e){
+    var sp = e.target.closest('span');
+    if (!sp) return;
+    Array.prototype.forEach.call(navEl.children, function(s){ s.classList.remove('on'); });
+    sp.classList.add('on');
+    curTag = sp.getAttribute('data-tag') || '';
+    render();
+  });
+  render();
+})();
+</script>
+<script>
+(function(){
+
   const canvas=document.getElementById('space');
   const ctx=canvas.getContext('2d');
   let W=0,H=0,DPR=1,cx=0,cy=0,unit=1;
