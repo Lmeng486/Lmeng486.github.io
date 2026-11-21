@@ -199,6 +199,37 @@
   .card.off{opacity:.72}
   .empty{grid-column:1/-1;text-align:center;font-family:var(--mono);font-size:12px;color:var(--dim);padding:60px 0}
   @media(max-width:820px){input.app-search{min-width:0;flex:1;font-size:11px}}
+/* ==== v3 patch: two-column compact cards + visible filter + search highlight ==== */
+.app-body{max-width:960px!important}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;margin-top:32px!important}
+.card{padding:18px 15px!important;min-height:0!important;border-radius:12px!important}
+.card .corner{width:30px!important;height:30px!important}
+.card .row1{gap:6px!important;flex-wrap:wrap!important}
+.card .name{font-size:14px!important;line-height:1.3;word-break:break-word}
+.card .badge{font-size:9px!important;padding:1px 6px!important}
+.card .st{font-size:9px!important;white-space:nowrap}
+.card .date{font-size:9px!important;margin-top:4px!important}
+.card .ph-desc{font-size:10px!important;line-height:1.6!important;margin-top:8px!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .tags{gap:4px!important;margin-top:9px!important}
+.card .t{font-size:9px!important;padding:1px 7px!important}
+.card .actions{margin-top:12px!important;gap:6px!important;flex-direction:column!important}
+.card .btn{width:100%!important;box-sizing:border-box;text-align:center;font-size:10px!important;padding:7px 6px!important}
+.card mark{background:rgba(169,123,70,.26);color:var(--accent-deep);border-radius:2px;padding:0 1px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 24px}
+.chips span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;border:1px solid var(--line);border-radius:100px;padding:6px 14px;background:var(--paper);color:var(--mid);cursor:pointer;transition:background .2s,border-color .2s,color .2s;user-select:none;-webkit-tap-highlight-color:transparent}
+.chips span:hover{border-color:var(--accent);color:var(--accent-deep)}
+.chips span.on{background:var(--accent-deep);border-color:var(--accent-deep);color:#fffaf0}
+.app-head .nav span{cursor:pointer}
+.app-head .nav span.on{color:var(--accent-deep)}
+.empty .clr{display:inline-block;margin-top:14px;color:var(--accent-deep);border-bottom:1px dashed var(--accent);cursor:pointer;font-size:12px}
+.empty .clr:hover{color:var(--accent)}
+@media(max-width:520px){
+  .grid{gap:10px!important}
+  .card{padding:14px 11px!important}
+  .card .name{font-size:13px!important}
+  .card .ph-desc{-webkit-line-clamp:2}
+  .chips span{font-size:10px;padding:5px 11px}
+}
 </style>
 </head>
 <body>
@@ -253,13 +284,16 @@
 <section id="app">
   <header class="app-head">
     <div class="logo"><div class="mark"><i></i></div><b>NEXUS<em>.</em>星枢</b></div>
-    <nav class="nav">
-      <span class="on">站点列表</span><span>注册福利</span><span>签到奖励</span><span>低倍率</span>
+    <nav class="nav" id="mainNav">
+      <span class="on" data-tag="">站点列表</span><span data-tag="注册送额度">注册福利</span><span data-tag="有签到">签到奖励</span><span data-tag="低倍率">低倍率</span>
     </nav>
     <input id="q" class="app-search" type="search" placeholder="⌕ 搜索站点 / 标签 / 关键词…" autocomplete="off" spellcheck="false">
   </header>
 
   <div class="app-body">
+    <div class="chips" id="chips">
+      <span class="on" data-tag="">全部站点</span><span data-tag="注册送额度">注册福利</span><span data-tag="有签到">签到奖励</span><span data-tag="低倍率">低倍率</span>
+    </div>
     <div class="app-title">
       <span class="tag">API 中转站聚合 · 公益整理</span>
       <h2>这里聚集了很多 <em>API</em> 中转站</h2>
@@ -306,54 +340,107 @@ var STAT_UPDATED = '2026-11-21';
   var listEl = document.getElementById('list'),
       qEl = document.getElementById('q'),
       statEl = document.getElementById('statLine'),
-      navEl = document.getElementById('nav');
-  var curTag = '', curQ = '';
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ var mm = {'&':'&amp;','<':'&lt;','>':'&gt;'}; return mm[c] || '&#34;'; }); }
+      mainNav = document.getElementById('mainNav'),
+      chips = document.getElementById('chips');
+  var curTag = '', curQ = '', toks = [];
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ var mm={'&':'&amp;','<':'&lt;','>':'&gt;'}; return mm[c] || '&#34;'; }); }
+
+  function hl(t){
+    var s = esc(t);
+    if (!toks.length) return s;
+    for (var i=0;i<toks.length;i++){
+      var q = toks[i];
+      if (!q) continue;
+      var safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      try { s = s.replace(new RegExp('(' + safe + ')', 'gi'), '<mark>$1</mark>'); } catch(e){}
+    }
+    return s;
+  }
+
   function goBtn(s){
     if (s.url) return '<a class="btn go" href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">前往站点 ↗</a>';
     return '<span class="btn go dim">地址待核</span>';
   }
+
+  function card(s){
+    return '<div class="card' + (s.ok ? '' : ' off') + '"><div class="corner"></div>'
+      + '<div class="row1"><span class="name">' + hl(s.name) + '</span>'
+      + (s.isNew ? '<span class="badge">新</span>' : '')
+      + '<span class="st"><span class="dot' + (s.ok ? '' : ' bad') + '"></span>' + (s.ok ? '正常' : '离线') + '</span></div>'
+      + '<div class="date">' + esc(s.added) + '</div>'
+      + '<div class="ph-desc">' + hl(s.desc) + '</div>'
+      + '<div class="tags">' + s.tags.map(function(t){ return '<span class="t">#' + hl(t) + '</span>'; }).join('') + '</div>'
+      + '<div class="actions">' + goBtn(s)
+      + (s.qq ? '<button class="btn qq" type="button" data-qq="' + esc(s.qq) + '">群 ' + esc(s.qq) + '</button>' : '')
+      + '</div></div>';
+  }
+
   function render(){
     var f = SITES.filter(function(s){
       if (curTag && s.tags.indexOf(curTag) === -1) return false;
-      if (curQ){
-        var k = (s.name + ' ' + s.desc + ' ' + s.tags.join(' ') + ' ' + (s.qq || '')).toLowerCase();
-        if (k.indexOf(curQ) === -1) return false;
+      if (toks.length){
+        var k = (s.name + ' ' + s.desc + ' ' + s.tags.join(' ') + ' ' + (s.qq || '') + ' ' + (s.url || '')).toLowerCase();
+        for (var i=0;i<toks.length;i++){ if (k.indexOf(toks[i]) === -1) return false; }
       }
       return true;
     });
     var okn = SITES.filter(function(s){ return s.ok; }).length;
-    statEl.innerHTML = '共收录 <b>' + SITES.length + '</b> 个真实站点 · 可访问 <b>' + okn + '</b> · 当前显示 <b>' + f.length + '</b> · 核对 <b>' + STAT_UPDATED + '</b>';
-    if (!f.length){ listEl.innerHTML = '<div class="empty">没有匹配的站点，清空筛选再试试</div>'; return; }
-    listEl.innerHTML = f.map(function(s){
-      return '<div class="card' + (s.ok ? '' : ' off') + '"><div class="corner"></div>'
-        + '<div><div class="row1"><span class="name">' + esc(s.name) + '</span>'
-        + (s.isNew ? '<span class="badge">新站</span>' : '')
-        + '<span class="st"><span class="dot' + (s.ok ? '' : ' bad') + '"></span>' + (s.ok ? '可访问' : '暂不可达') + '</span></div>'
-        + '<div class="date">' + esc(s.added) + ' 收录</div>'
-        + '<div class="ph-desc">' + esc(s.desc) + '</div>'
-        + '<div class="tags">' + s.tags.map(function(t){ return '<span class="t">#' + esc(t) + '</span>'; }).join('') + '</div></div>'
-        + '<div class="actions">' + goBtn(s)
-        + (s.qq ? '<button class="btn qq" type="button" data-qq="' + esc(s.qq) + '">交流群 ' + esc(s.qq) + '</button>' : '')
-        + '</div></div>';
-    }).join('');
+    var cx = curTag ? ' · 标签 <b>' + esc(curTag) + '</b>' : '';
+    var qx = curQ ? ' · 搜索 <b>' + esc(curQ) + '</b>' : '';
+    statEl.innerHTML = '共 <b>' + SITES.length + '</b> 个站点 · 可访问 <b>' + okn + '</b> · 当前显示 <b>' + f.length + '</b>' + cx + qx + ' · 核对 <b>' + STAT_UPDATED + '</b>';
+    if (!f.length){
+      listEl.innerHTML = '<div class="empty">没有匹配「' + esc(curQ || curTag) + '」的站点<br><span class="clr">点此清空全部筛选</span></div>';
+      return;
+    }
+    listEl.innerHTML = f.map(card).join('');
   }
+
+  function syncTag(tag){
+    [mainNav, chips].forEach(function(n){
+      if (!n) return;
+      Array.prototype.forEach.call(n.children, function(s){
+        if ((s.getAttribute('data-tag') || '') === tag) s.classList.add('on');
+        else s.classList.remove('on');
+      });
+    });
+  }
+
+  function doSearch(){
+    curQ = qEl.value.trim().toLowerCase();
+    toks = curQ.split(/\s+/).filter(Boolean);
+    render();
+  }
+
+  function clearAll(){ qEl.value = ''; curQ = ''; toks = []; curTag = ''; syncTag(''); render(); }
+
   listEl.addEventListener('click', function(e){
+    if (e.target.classList && e.target.classList.contains('clr')){ clearAll(); qEl.focus(); return; }
     var b = e.target.closest('.btn.qq');
     if (!b) return;
     var qqv = b.getAttribute('data-qq'), old = b.textContent;
-    function done(){ b.textContent = '已复制 ' + qqv; setTimeout(function(){ b.textContent = old; }, 1200); }
+    function done(){ b.textContent = '已复制'; setTimeout(function(){ b.textContent = old; }, 1200); }
     if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(qqv).then(done, done); } else { done(); }
   });
-  qEl.addEventListener('input', function(){ curQ = qEl.value.trim().toLowerCase(); render(); });
-  navEl.addEventListener('click', function(e){
-    var sp = e.target.closest('span');
-    if (!sp) return;
-    Array.prototype.forEach.call(navEl.children, function(s){ s.classList.remove('on'); });
-    sp.classList.add('on');
-    curTag = sp.getAttribute('data-tag') || '';
-    render();
-  });
+
+  qEl.addEventListener('input', doSearch);
+  qEl.addEventListener('search', doSearch);
+  qEl.addEventListener('keyup', function(e){ if (e.key === 'Escape'){ qEl.value = ''; doSearch(); } });
+
+  function bindNav(n){
+    if (!n) return;
+    n.addEventListener('click', function(e){
+      var sp = e.target.closest('span');
+      if (!sp) return;
+      curTag = sp.getAttribute('data-tag') || '';
+      syncTag(curTag);
+      render();
+    });
+  }
+  bindNav(mainNav);
+  bindNav(chips);
+
+  syncTag('');
   render();
 })();
 </script>
